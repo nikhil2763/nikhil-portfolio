@@ -1,0 +1,18 @@
+[
+  {
+    "id": "msg_sample_1",
+    "name": "Nikhil Jaiswal",
+    "email": "nikhiljaiswal244@gmail.com",
+    "subject": "System Test Message",
+    "message": "Testing contact form storage. Future messages from your portfolio will be saved here automatically!",
+    "timestamp": "2026-10-19T15:23:00.000Z"
+  },
+  {
+    "id": "msg_1792403869312",
+    "name": "Rahul dada",
+    "email": "ravivanjara177@gmail.com",
+    "subject": "Job testing",
+    "message": "Testing purpose",
+    "timestamp": "2026-10-19T09:57:49.312Z"
+  }
+]
