@@ -1,41 +1,44 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const interSans = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono-jb",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "700"],
 });
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#080c14",
+  themeColor: "#0c0f17",
 };
 
 export const metadata: Metadata = {
-  title: "Nikhil Jaiswal | Full Stack Developer • MERN & Next.js",
+  title: "Nikhil Jaiswal | Full-Stack Developer & Software Engineer",
   description:
-    "Professional portfolio of Nikhil Jaiswal — Full Stack Developer with 9.5 CGPA in Information Technology. Production experience in enterprise HRMS and ERP platforms, React.js, Node.js, and PostgreSQL.",
+    "Nikhil Jaiswal is a Full-Stack Developer based in Ahmedabad, India building scalable full-stack web applications, ERP systems, enterprise HRMS platforms, and high-performance modern web experiences.",
   keywords: [
     "Nikhil Jaiswal",
     "Full Stack Developer",
-    "MERN Stack",
-    "React.js",
-    "Node.js",
+    "Software Engineer",
+    "React Developer",
+    "Node.js Developer",
     "Next.js",
     "PostgreSQL",
-    "Express.js",
     "MongoDB",
-    "Tailwind CSS",
-    "Software Engineer",
-    "Ahmedabad"
+    "Web Developer Ahmedabad",
+    "Gujarat",
+    "India"
   ],
   authors: [{ name: "Nikhil Jaiswal" }],
   icons: {
@@ -43,7 +46,6 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
   },
 };
-
 
 export default function RootLayout({
   children,
@@ -53,9 +55,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
+      className={`${interSans.variable} ${jetbrainsMono.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-[#080c14] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
+      <body className="min-h-full flex flex-col bg-[#0c0f17] text-[#f8fafc] font-sans selection:bg-[#4ade80]/30 selection:text-[#4ade80]">
         {children}
       </body>
     </html>

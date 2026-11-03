@@ -47,7 +47,7 @@ export const portfolioData = {
   personal: {
     name: "Nikhil Jaiswal",
     role: "Full Stack Developer",
-    tagline: "Specializing in MERN Stack, Next.js, PostgreSQL & Scalable Enterprise Architectures",
+    tagline: "Specializing in Full Stack Development, Next.js, PostgreSQL & Scalable Enterprise Architectures",
     bio: "Passionate and results-driven Full Stack Developer with hands-on production experience engineering enterprise-grade HRMS and ERP platforms, RESTful APIs, role-based dashboards, and responsive web applications. Graduated with a 9.5 CGPA in Information Technology from Silver Oak University.",
     phone: "9327391838",
     formattedPhone: "+91 93273 91838",
@@ -55,6 +55,7 @@ export const portfolioData = {
     email: "nikhiljaiswal244@gmail.com",
     github: "nikhil2763",
     githubUrl: "https://github.com/nikhil2763",
+    linkedinUrl: "https://www.linkedin.com/in/nikhil-jaiswal-33093428b/",
     location: "Ahmedabad, Gujarat, India",
     availability: "Available for Full-Time Roles & High-Impact Projects",
     avatar: "/images/nikhil-real.jpg",
@@ -62,7 +63,7 @@ export const portfolioData = {
       { label: "B.Tech IT Score", value: "9.5", suffix: " CGPA", caption: "Silver Oak University" },
       { label: "Hands-on Experience", value: "2+", suffix: " Years", caption: "Full-Time & Production" },
       { label: "Enterprise Modules", value: "12+", suffix: " Modules", caption: "HRMS & ERP Systems" },
-      { label: "Core Technologies", value: "15+", suffix: " Stacks", caption: "MERN, Postgres, Next.js" }
+      { label: "Core Technologies", value: "15+", suffix: " Stacks", caption: "Full Stack, Postgres, Next.js" }
     ]
   },
 

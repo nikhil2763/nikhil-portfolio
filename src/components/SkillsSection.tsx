@@ -1,205 +1,145 @@
 "use client";
 
-import { useState } from "react";
-import { portfolioData } from "@/data/portfolioData";
-import { 
-  Code2, 
-  Server, 
-  Database, 
-  Terminal, 
-  Cpu, 
-  Zap, 
-  Users, 
-  Rocket, 
-  Sparkles,
-  ShieldCheck,
-  CheckCircle2
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { TechIcon } from "@/components/icons/TechIcon";
+
+function useBiRevealList(count: number, threshold = 0.1) {
+  const refs = useRef<(HTMLElement | null)[]>([]);
+  const [vis, setVis] = useState<Set<number>>(new Set());
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const i = Number(e.target.getAttribute("data-ri"));
+          setVis((prev) => {
+            const next = new Set(prev);
+            e.isIntersecting ? next.add(i) : next.delete(i);
+            return next;
+          });
+        });
+      },
+      { threshold, rootMargin: "0px 0px -30px 0px" }
+    );
+    refs.current.forEach((r) => r && obs.observe(r));
+    return () => obs.disconnect();
+  }, [count, threshold]);
+  const setRef = (i: number) => (el: HTMLElement | null) => {
+    refs.current[i] = el;
+    if (el) el.setAttribute("data-ri", String(i));
+  };
+  return { setRef, isVis: (i: number) => vis.has(i) };
+}
+
+function useBiReveal(threshold = 0.12) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setVisible(e.isIntersecting),
+      { threshold, rootMargin: "0px 0px -40px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
 
 export default function SkillsSection() {
-  const [activeTab, setActiveTab] = useState<"all" | "frontend" | "backend" | "databases" | "tools">("all");
+  const header = useBiReveal(0.1);
+  const { setRef, isVis } = useBiRevealList(4);
 
-  const skillGroups = [
+  const stackGroups = [
     {
-      id: "frontend",
-      title: "Frontend Engineering",
-      icon: Code2,
-      color: "from-cyan-500 to-blue-500",
-      skills: portfolioData.skills.frontend
+      label: "FRONTEND", color: "#4ade80",
+      skills: [
+        { name: "React.js", iconKey: "react" }, { name: "Next.js 15", iconKey: "next" },
+        { name: "TypeScript", iconKey: "typescript" }, { name: "JavaScript", iconKey: "javascript" },
+        { name: "Tailwind CSS", iconKey: "tailwind" }, { name: "HTML5", iconKey: "html" },
+      ],
     },
     {
-      id: "backend",
-      title: "Backend & System APIs",
-      icon: Server,
-      color: "from-indigo-500 to-purple-500",
-      skills: portfolioData.skills.backend
+      label: "BACKEND", color: "#38bdf8",
+      skills: [
+        { name: "Node.js", iconKey: "node" }, { name: "Express.js", iconKey: "express" },
+        { name: "REST APIs", iconKey: "api" }, { name: "JWT Auth", iconKey: "jwt" },
+        { name: "RBAC", iconKey: "security" },
+      ],
     },
     {
-      id: "databases",
-      title: "Databases & Data Modeling",
-      icon: Database,
-      color: "from-emerald-500 to-teal-500",
-      skills: portfolioData.skills.databases
+      label: "DATABASES", color: "#c084fc",
+      skills: [
+        { name: "PostgreSQL", iconKey: "postgres" }, { name: "MongoDB", iconKey: "mongo" },
+        { name: "SQL Indexing", iconKey: "postgres" }, { name: "Mongoose ODM", iconKey: "database" },
+      ],
     },
     {
-      id: "tools",
-      title: "Languages & DevOps Tools",
-      icon: Terminal,
-      color: "from-amber-500 to-orange-500",
-      skills: portfolioData.skills.languagesAndTools
-    }
+      label: "TOOLS", color: "#f59e0b",
+      skills: [
+        { name: "Git & GitHub", iconKey: "git" }, { name: "Docker", iconKey: "docker" },
+        { name: "Postman", iconKey: "api" }, { name: "Vercel", iconKey: "next" },
+        { name: "Linux CLI", iconKey: "linux" },
+      ],
+    },
   ];
 
-  const displayedGroups = activeTab === "all"
-    ? skillGroups
-    : skillGroups.filter((g) => g.id === activeTab);
+  // Alternate reveal direction per card: left, right, left, right
+  const revealDirs = ["reveal-left", "reveal-right", "reveal-left", "reveal-right"];
+  const delayClasses = ["delay-0", "delay-100", "delay-50", "delay-150"];
 
   return (
-    <section id="skills" className="py-24 relative overflow-hidden bg-[#070b13]">
-      {/* Background Gradients */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <section id="skills" className="py-16 border-t border-[#ffffff12] relative bg-[#0c0f17]">
+      <div className="max-w-[1152px] mx-auto px-5">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-semibold">
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Technical Competence</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-            Skills & <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">Core Expertise</span>
+        {/* Header — blur fade */}
+        <div
+          ref={header.ref as React.RefObject<HTMLDivElement>}
+          className={`reveal reveal-blur ${header.visible ? "in" : ""} space-y-1.5`}
+        >
+          <div className="eyebrow">&lt;skills /&gt;</div>
+          <h2 className="section-title">
+            Technologies & <span>production stack</span>.
           </h2>
-
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            A comprehensive overview of programming languages, frontend frameworks, backend runtimes, database management systems, and enterprise design patterns.
-          </p>
         </div>
 
-        {/* Tab Filters */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
-              activeTab === "all"
-                ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/20 border border-cyan-400/40"
-                : "bg-slate-900/60 text-slate-400 hover:text-white border border-white/5"
-            }`}
-          >
-            All Categories
-          </button>
-          {skillGroups.map((group) => {
-            const Icon = group.icon;
-            return (
-              <button
-                key={group.id}
-                onClick={() => setActiveTab(group.id as any)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 cursor-pointer ${
-                  activeTab === group.id
-                    ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/20 border border-cyan-400/40"
-                    : "bg-slate-900/60 text-slate-400 hover:text-white border border-white/5"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{group.title.split(" ")[0]}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Skills Category Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-          {displayedGroups.map((group) => {
-            const Icon = group.icon;
-            return (
-              <div
-                key={group.id}
-                className="glass-card rounded-2xl p-6 sm:p-7 border border-white/10 space-y-6"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${group.color} p-[1px]`}>
-                      <div className="w-full h-full bg-slate-900 rounded-[11px] flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-cyan-300" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">
-                        {group.title}
-                      </h3>
-                      <p className="text-xs text-slate-400 font-mono">
-                        {group.skills.length} Core Technologies
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Skill Bars & Badges */}
-                <div className="space-y-4">
-                  {group.skills.map((skill, idx) => (
-                    <div key={idx} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-200 flex items-center gap-1.5">
-                          {skill.name}
-                          {skill.highlight && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                          )}
-                        </span>
-                        <span className="text-slate-400 font-mono">{skill.level}%</span>
-                      </div>
-                      
-                      {/* Meter Bar */}
-                      <div className="w-full h-2 rounded-full bg-slate-800/80 overflow-hidden border border-white/5">
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${group.color} transition-all duration-1000`}
-                          style={{ width: `${skill.level}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Key Strengths Spotlight */}
-        <div className="pt-8 border-t border-white/10">
-          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-            <h3 className="text-2xl font-bold text-white">
-              Key Strengths & Engineering Attributes
-            </h3>
-            <p className="text-sm text-slate-400">
-              Personal and professional capabilities brought to high-performing software development teams.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {portfolioData.strengths.map((strength, index) => {
-              const icons = [Cpu, Zap, Users, Rocket];
-              const IconComponent = icons[index % icons.length];
-              return (
+        {/* 2x2 Grid — alternating left/right slide */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
+          {stackGroups.map((group, index) => (
+            <div
+              key={group.label}
+              ref={setRef(index) as unknown as React.RefObject<HTMLDivElement>}
+              style={{ borderColor: isVis(index) ? `${group.color}20` : "rgba(255,255,255,0.08)" }}
+              className={`border bg-[#131826] rounded-[8px] p-5 reveal ${revealDirs[index]} ${delayClasses[index]} ${isVis(index) ? "in" : ""} hover:bg-[#182032] transition-colors duration-300`}
+            >
+              {/* Shimmer top bar when visible */}
+              {isVis(index) && (
                 <div
-                  key={index}
-                  className="glass-card rounded-2xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all">
-                    <IconComponent className="w-6 h-6" />
+                  className="h-0.5 rounded-full mb-4 animate-shimmer"
+                  style={{ background: `linear-gradient(90deg, transparent, ${group.color}40, transparent)` }}
+                />
+              )}
+
+              <div className="font-mono-code text-[10.5px] font-bold tracking-widest mb-4" style={{ color: group.color }}>
+                {group.label}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {group.skills.map((skill, si) => (
+                  <div
+                    key={skill.name}
+                    className="skill-badge-chip"
+                    style={{ transitionDelay: isVis(index) ? `${si * 40}ms` : "0ms" }}
+                  >
+                    <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                      <TechIcon name={skill.iconKey} className="w-4 h-4" />
+                    </div>
+                    <span className="text-[#f8fafc] text-[12.5px] font-medium">{skill.name}</span>
                   </div>
-                  <h4 className="text-base font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
-                    {strength.title}
-                  </h4>
-                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                    {strength.desc}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
       </div>

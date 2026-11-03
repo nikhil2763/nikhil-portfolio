@@ -1,7 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { portfolioData } from "@/data/portfolioData";
+
+function useBiReveal(threshold = 0.12, rootMargin = "0px 0px -40px 0px") {
+  const ref = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setVisible(e.isIntersecting),
+      { threshold, rootMargin }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold, rootMargin]);
+  return { ref, visible };
+}
 import { 
   Mail, 
   Phone, 
@@ -14,11 +30,15 @@ import {
   ExternalLink,
   MessageCircle,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Briefcase
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
 
 export default function ContactSection() {
+  const headerReveal = useBiReveal(0.1);
+  const leftColReveal = useBiReveal(0.08);
+  const formReveal = useBiReveal(0.05);
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [formState, setFormState] = useState({
     name: "",
@@ -44,7 +64,7 @@ export default function ContactSection() {
     setErrorMessage("");
 
     try {
-      // Send message to our local API route to save in messages.json
+      // Send message to local API route to save in messages.json
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +75,7 @@ export default function ContactSection() {
         throw new Error("Failed to save message");
       }
 
-      // Trigger celebratory confetti safely
+      // Celebratory confetti safely
       try {
         if (typeof window !== "undefined") {
           const confettiModule = await import("canvas-confetti");
@@ -73,7 +93,6 @@ export default function ContactSection() {
       setIsSubmitted(true);
     } catch (err) {
       console.error(err);
-      // Fallback: still treat as submitted
       setIsSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -81,7 +100,7 @@ export default function ContactSection() {
   };
 
   const whatsappMessageUrl = `https://wa.me/919327391838?text=${encodeURIComponent(
-    `Hi Nikhil, I sent a message from your portfolio!\nName: ${formState.name}\nEmail: ${formState.email}\nSubject: ${formState.subject}\nMessage: ${formState.message}`
+    `Hi Nikhil, I saw your portfolio and would like to discuss an opportunity!\nName: ${formState.name}\nEmail: ${formState.email}\nSubject: ${formState.subject}\nMessage: ${formState.message}`
   )}`;
 
   const mailtoUri = `mailto:${portfolioData.personal.email}?subject=${encodeURIComponent(
@@ -91,44 +110,45 @@ export default function ContactSection() {
   )}`;
 
   return (
-    <section id="contact" className="py-20 sm:py-24 relative overflow-hidden bg-[#070b12]">
-      {/* Background Gradients */}
-      <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <section id="contact" className="py-20 sm:py-24 border-t border-[#ffffff12] relative overflow-hidden bg-[#0c0f17]">
+      {/* Background Subtle Glows */}
+      <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-[#4ade800d] rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#a78bfa10] rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1152px] mx-auto px-5 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-semibold">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Let&apos;s Connect</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-            Get In <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">Touch</span>
+        {/* Section Header — blur fade */}
+        <div
+          ref={headerReveal.ref as React.RefObject<HTMLDivElement>}
+          className={`reveal reveal-blur space-y-2 mb-12 ${headerReveal.visible ? "in" : ""}`}
+        >
+          <div className="eyebrow">&lt;hire-me /&gt;</div>
+          <h2 className="section-title">
+            Let&apos;s build something <span>exceptional</span>.
           </h2>
-
-          <p className="text-slate-400 text-xs sm:text-base leading-relaxed">
-            Interested in discussing full-time engineering roles, MERN/Next.js projects, or enterprise ERP & HRMS architectures? Reach out directly.
+          <p className="section-desc">
+            Open for high-impact full-time engineering roles, enterprise consulting, and scalable web solutions. Connect directly or send a message below.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column: Direct Contact Info */}
-          <div className="lg:col-span-5 space-y-4">
+          {/* Left Column: Direct Contact Info & Fast Reach — slide from left */}
+          <div
+            ref={leftColReveal.ref as React.RefObject<HTMLDivElement>}
+            className={`lg:col-span-5 space-y-4 reveal reveal-left delay-100 ${leftColReveal.visible ? "in" : ""}`}
+          >
             
             {/* Phone Card with Call & WhatsApp */}
-            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 space-y-4 group">
+            <div className="border border-[#ffffff12] bg-[#111113] rounded-[6px] p-5 sm:p-6 space-y-4 group hover:border-[#4ade8040] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <div className="w-10 h-10 rounded-[4px] bg-[#4ade8015] border border-[#4ade8030] flex items-center justify-center text-[#4ade80]">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-300">Direct Phone & WhatsApp</h4>
-                    <p className="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    <h4 className="text-xs font-mono-code text-[#64748b] uppercase tracking-wider">Direct Phone & WhatsApp</h4>
+                    <p className="text-sm sm:text-base font-bold text-[#f1f5f9] group-hover:text-[#4ade80] transition-colors font-mono-code">
                       {portfolioData.personal.formattedPhone}
                     </p>
                   </div>
@@ -137,21 +157,21 @@ export default function ContactSection() {
                 <button
                   type="button"
                   onClick={() => handleCopy(portfolioData.personal.phone, "phone")}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-2 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
                   title="Copy Phone Number"
                 >
                   {copiedType === "phone" ? (
-                    <Check className="w-4 h-4 text-emerald-400" />
+                    <Check className="w-4 h-4 text-[#4ade80]" />
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+              <div className="flex items-center gap-2 pt-2 border-t border-[#ffffff0a]">
                 <a
                   href={`tel:${portfolioData.personal.phone}`}
-                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold text-center transition-all"
+                  className="flex-1 py-2 px-3 rounded-[3px] bg-[#4ade8018] hover:bg-[#4ade8030] border border-[#4ade8040] text-[#4ade80] text-xs font-mono-code font-semibold text-center transition-all"
                 >
                   Call Directly
                 </a>
@@ -159,24 +179,24 @@ export default function ContactSection() {
                   href={portfolioData.personal.whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 py-2 px-3 rounded-xl bg-green-500/15 hover:bg-green-500/25 border border-green-500/30 text-green-300 text-xs font-semibold text-center transition-all flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 px-3 rounded-[3px] bg-[#22c55e18] hover:bg-[#22c55e30] border border-[#22c55e40] text-[#4ade80] text-xs font-mono-code font-semibold text-center transition-all flex items-center justify-center gap-1.5"
                 >
                   <span>WhatsApp</span>
-                  <ExternalLink className="w-3 h-3 text-green-400" />
+                  <ExternalLink className="w-3 h-3 text-[#4ade80]" />
                 </a>
               </div>
             </div>
 
             {/* Email Card */}
-            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 space-y-4 group">
+            <div className="border border-[#ffffff12] bg-[#111113] rounded-[6px] p-5 sm:p-6 space-y-4 group hover:border-[#4ade8040] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                  <div className="w-10 h-10 rounded-[4px] bg-[#38bdf815] border border-[#38bdf830] flex items-center justify-center text-[#38bdf8] shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="overflow-hidden">
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-300">Email Address</h4>
-                    <p className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+                    <h4 className="text-xs font-mono-code text-[#64748b] uppercase tracking-wider">Email Address</h4>
+                    <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] group-hover:text-[#38bdf8] transition-colors font-mono-code truncate">
                       {portfolioData.personal.email}
                     </p>
                   </div>
@@ -185,37 +205,37 @@ export default function ContactSection() {
                 <button
                   type="button"
                   onClick={() => handleCopy(portfolioData.personal.email, "email")}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
+                  className="p-2 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
                   title="Copy Email"
                 >
                   {copiedType === "email" ? (
-                    <Check className="w-4 h-4 text-cyan-400" />
+                    <Check className="w-4 h-4 text-[#4ade80]" />
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
 
-              <div className="pt-2 border-t border-white/5">
+              <div className="pt-2 border-t border-[#ffffff0a]">
                 <a
                   href={`mailto:${portfolioData.personal.email}`}
-                  className="w-full py-2 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold text-center block transition-all"
+                  className="w-full py-2 px-3 rounded-[3px] bg-[#38bdf818] hover:bg-[#38bdf830] border border-[#38bdf840] text-[#38bdf8] text-xs font-mono-code font-semibold text-center block transition-all"
                 >
                   Send Email via Client
                 </a>
               </div>
             </div>
 
-            {/* GitHub Card */}
-            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 space-y-3 group">
+            {/* GitHub & Networks Card */}
+            <div className="border border-[#ffffff14] bg-[#131826] rounded-[8px] p-5 sm:p-6 space-y-3 group hover:border-[#4ade8040] hover:bg-[#182032] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                  <div className="w-10 h-10 rounded-[4px] bg-[#a78bfa15] border border-[#a78bfa30] flex items-center justify-center text-[#a78bfa]">
                     <GithubIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-300">GitHub Profile</h4>
-                    <p className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                    <h4 className="text-xs font-mono-code text-[#94a3b8] uppercase tracking-wider">GitHub Profile</h4>
+                    <p className="text-sm font-bold text-[#f8fafc] group-hover:text-[#a78bfa] transition-colors font-mono-code">
                       github.com/{portfolioData.personal.github}
                     </p>
                   </div>
@@ -225,8 +245,37 @@ export default function ContactSection() {
                   href={portfolioData.personal.githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
-                  aria-label="Open GitHub"
+                  className="p-2 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-[#a78bfa] transition-colors"
+                  title="Open GitHub"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* LinkedIn Profile Card */}
+            <div className="border border-[#ffffff14] bg-[#131826] rounded-[8px] p-5 sm:p-6 space-y-3 group hover:border-[#38bdf840] hover:bg-[#182032] transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-[4px] bg-[#38bdf815] border border-[#38bdf830] flex items-center justify-center text-[#38bdf8]">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.64 1.64 0 1 0 0-3.28 1.64 1.64 0 0 0 0 3.28m1.4 9.74v-8.37H5.06v8.37h2.8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-mono-code text-[#94a3b8] uppercase tracking-wider">LinkedIn Profile</h4>
+                    <p className="text-sm font-bold text-[#f8fafc] group-hover:text-[#38bdf8] transition-colors font-mono-code">
+                      linkedin.com/in/nikhil-jaiswal
+                    </p>
+                  </div>
+                </div>
+
+                <a
+                  href={portfolioData.personal.linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-[#38bdf8] transition-colors"
+                  title="Open LinkedIn"
                 >
                   <ExternalLink className="w-4 h-4" />
                 </a>
@@ -234,39 +283,47 @@ export default function ContactSection() {
             </div>
 
             {/* Location & Availability Note */}
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 flex items-center gap-3 text-xs text-slate-400">
-              <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>Based in <span className="text-white font-medium">{portfolioData.personal.location}</span> • Open to Remote & Onsite Roles</span>
+            <div className="p-4 rounded-[6px] bg-[#131826] border border-[#ffffff0f] flex items-center gap-3 text-xs text-[#94a3b8] font-mono-code">
+              <MapPin className="w-4 h-4 text-[#4ade80] shrink-0" />
+              <span>Based in <span className="text-[#f8fafc] font-medium">{portfolioData.personal.location}</span> • Open to Remote &amp; Onsite Roles</span>
             </div>
 
           </div>
 
-          {/* Right Column: Interactive Contact Form */}
-          <div className="lg:col-span-7">
-            <div className="glass-card rounded-2xl p-6 sm:p-8 border border-white/10 shadow-2xl relative">
-              <h3 className="text-xl font-bold text-white mb-1">
-                Send a Direct Message
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-400 mb-6">
+          {/* Right Column: Interactive Hire Me & Message Form — slide from right */}
+          <div
+            ref={formReveal.ref as React.RefObject<HTMLDivElement>}
+            className={`lg:col-span-7 reveal reveal-right delay-200 ${formReveal.visible ? "in" : ""}`}
+          >
+            <div className="border border-[#ffffff12] bg-[#111113] rounded-[6px] p-6 sm:p-8 shadow-2xl relative">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-lg sm:text-xl font-bold text-[#f1f5f9]">
+                  Send a Direct Transmission
+                </h3>
+                <span className="font-mono-code text-[10px] text-[#4ade80] bg-[#4ade8015] border border-[#4ade8030] px-2 py-0.5 rounded-[2px]">
+                  HIRE ME
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-[#64748b] mb-6">
                 Messages submitted here are saved to your portfolio and can also be forwarded directly via WhatsApp or email.
               </p>
 
               {isSubmitted ? (
-                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-4 text-center sm:text-left animate-in fade-in duration-300">
+                <div className="p-6 rounded-[4px] bg-[#4ade8012] border border-[#4ade8040] space-y-4 text-center sm:text-left">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-[#4ade8020] flex items-center justify-center text-[#4ade80] shrink-0">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-base font-bold text-white">Message Stored Successfully!</h4>
-                      <p className="text-xs text-emerald-300">
-                        Your message has been saved into <code className="bg-emerald-950/60 px-1.5 py-0.5 rounded text-emerald-200">messages.json</code>.
+                      <h4 className="text-base font-bold text-[#f1f5f9]">Message Stored Successfully!</h4>
+                      <p className="text-xs text-[#6ee7b7] font-mono-code">
+                        Your message has been saved into <code className="bg-black/60 px-1.5 py-0.5 rounded text-[#4ade80]">messages.json</code>.
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    You can also send this message to Nikhil immediately via:
+                  <p className="text-xs text-[#94a3b8] leading-relaxed">
+                    You can also forward this message to Nikhil immediately via:
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
@@ -274,7 +331,7 @@ export default function ContactSection() {
                       href={whatsappMessageUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl bg-green-500 hover:bg-green-600 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-green-500/20"
+                      className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-[3px] bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-[#22c55e30]"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Forward via WhatsApp</span>
@@ -284,9 +341,9 @@ export default function ContactSection() {
                       href={mailtoUri}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all border border-white/15"
+                      className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-[3px] bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all border border-white/15"
                     >
-                      <Mail className="w-4 h-4 text-cyan-400" />
+                      <Mail className="w-4 h-4 text-[#38bdf8]" />
                       <span>Open in Email App</span>
                     </a>
                   </div>
@@ -297,7 +354,7 @@ export default function ContactSection() {
                       setIsSubmitted(false);
                       setFormState({ name: "", email: "", subject: "", message: "" });
                     }}
-                    className="text-xs text-cyan-400 hover:underline pt-2 block text-center sm:text-left cursor-pointer"
+                    className="text-xs text-[#4ade80] hover:underline pt-2 block text-center sm:text-left cursor-pointer font-mono-code"
                   >
                     ← Send another message
                   </button>
@@ -306,22 +363,22 @@ export default function ContactSection() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-300 font-mono">
-                        Your Name <span className="text-cyan-400">*</span>
+                      <label className="text-xs font-medium text-[#94a3b8] font-mono-code">
+                        Your Name <span className="text-[#4ade80]">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. John Doe / HR Manager"
+                        placeholder="e.g. John Doe / Hiring Manager"
                         value={formState.name}
                         onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:outline-none text-sm text-white placeholder-slate-500 transition-colors"
+                        className="w-full px-4 py-3 rounded-[3px] bg-[#00000060] border border-[#ffffff14] focus:border-[#4ade80] focus:shadow-[0_0_12px_#4ade8026] focus:outline-none text-sm text-[#f1f5f9] placeholder-[#4b5563] transition-all font-mono-code"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-300 font-mono">
-                        Your Email <span className="text-cyan-400">*</span>
+                      <label className="text-xs font-medium text-[#94a3b8] font-mono-code">
+                        Your Email <span className="text-[#4ade80]">*</span>
                       </label>
                       <input
                         type="email"
@@ -329,13 +386,13 @@ export default function ContactSection() {
                         placeholder="john@company.com"
                         value={formState.email}
                         onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:outline-none text-sm text-white placeholder-slate-500 transition-colors"
+                        className="w-full px-4 py-3 rounded-[3px] bg-[#00000060] border border-[#ffffff14] focus:border-[#4ade80] focus:shadow-[0_0_12px_#4ade8026] focus:outline-none text-sm text-[#f1f5f9] placeholder-[#4b5563] transition-all font-mono-code"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-300 font-mono">
+                    <label className="text-xs font-medium text-[#94a3b8] font-mono-code">
                       Subject / Opportunity
                     </label>
                     <input
@@ -343,13 +400,13 @@ export default function ContactSection() {
                       placeholder="Full Stack Developer Opportunity / Project Inquiry"
                       value={formState.subject}
                       onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:outline-none text-sm text-white placeholder-slate-500 transition-colors"
+                      className="w-full px-4 py-3 rounded-[3px] bg-[#00000060] border border-[#ffffff14] focus:border-[#4ade80] focus:shadow-[0_0_12px_#4ade8026] focus:outline-none text-sm text-[#f1f5f9] placeholder-[#4b5563] transition-all font-mono-code"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-300 font-mono">
-                      Message <span className="text-cyan-400">*</span>
+                    <label className="text-xs font-medium text-[#94a3b8] font-mono-code">
+                      Message <span className="text-[#4ade80]">*</span>
                     </label>
                     <textarea
                       required
@@ -357,14 +414,14 @@ export default function ContactSection() {
                       placeholder="Tell Nikhil about your team, tech stack, or upcoming engineering goals..."
                       value={formState.message}
                       onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:outline-none text-sm text-white placeholder-slate-500 transition-colors resize-none"
+                      className="w-full px-4 py-3 rounded-[3px] bg-[#00000060] border border-[#ffffff14] focus:border-[#4ade80] focus:shadow-[0_0_12px_#4ade8026] focus:outline-none text-sm text-[#f1f5f9] placeholder-[#4b5563] transition-all resize-none font-mono-code"
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60"
+                    className="w-full py-3.5 px-6 rounded-[3px] bg-[#4ade80] hover:bg-[#3ec470] text-[#09090b] font-mono-code font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#4ade8020] transition-all duration-200 hover:shadow-[0_0_24px_#4ade8040] cursor-pointer disabled:opacity-60"
                   >
                     {isSubmitting ? (
                       <>
@@ -374,7 +431,7 @@ export default function ContactSection() {
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>Send Message & Connect</span>
+                        <span>Send Message &amp; Connect</span>
                       </>
                     )}
                   </button>

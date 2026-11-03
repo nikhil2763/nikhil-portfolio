@@ -1,23 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { portfolioData } from "@/data/portfolioData";
-import { 
-  FileText, 
-  ArrowRight, 
-  Mail, 
-  Phone, 
-  Sparkles, 
-  Copy, 
-  Check, 
-  Terminal, 
-  Code2, 
-  Database, 
-  Server,
-  Award,
-  Layers
+import {
+  ArrowRight, MapPin, Star, Briefcase, GraduationCap,
+  CheckCircle2, Zap, Rocket, Users, Phone, MessageCircle, Mail,
+  TrendingUp, Award, Clock
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
 
@@ -25,246 +13,412 @@ interface HeroProps {
   onOpenResume: () => void;
 }
 
+function LinkedInIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.64 1.64 0 1 0 0-3.28 1.64 1.64 0 0 0 0 3.28m1.4 9.74v-8.37H5.06v8.37h2.8z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.53c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.43 1.03 2.6c.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z" />
+    </svg>
+  );
+}
+
+// Tab types for recruiter card
+type RecruiterTab = "snapshot" | "strengths" | "contact";
+
 export default function Hero({ onOpenResume }: HeroProps) {
-  const [copiedCode, setCopiedCode] = useState(false);
+  const roles = [
+    "Full-Stack Developer",
+    "React & Next.js Engineer",
+    "Node.js & PostgreSQL Expert",
+    "Enterprise HRMS & ERP Architect",
+  ];
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<RecruiterTab>("snapshot");
 
-  const developerJson = `// Nikhil Jaiswal — Full Stack Developer
-const developerProfile = {
-  name: "Nikhil Jaiswal",
-  degree: "B.Tech in Information Technology",
-  cgpa: 9.5, // Silver Oak University
-  currentRole: "Full Stack Developer @ Airwix Technologies",
-  primaryStack: {
-    frontend: ["React.js", "Next.js", "Tailwind CSS", "TypeScript"],
-    backend: ["Node.js", "Express.js", "REST APIs", "RBAC"],
-    database: ["PostgreSQL", "MongoDB", "SQL Optimization"]
-  },
-  enterpriseExperience: [
-    "Enterprise HRMS (Payroll, Attendance, RBAC)",
-    "Live Multi-Tenant ERP (Inventory, CRM, Finance)",
-    "Full-Stack E-Commerce & Rental Platforms"
-  ],
-  status: "Open to High-Impact Full-Time Engineering Roles"
-};`;
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(developerJson);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2500);
-  };
+  useEffect(() => {
+    const fullText = roles[roleIndex];
+    const timer = setTimeout(() => {
+      if (isDeleting) {
+        setCurrentText(fullText.substring(0, currentText.length - 1));
+      } else {
+        setCurrentText(fullText.substring(0, currentText.length + 1));
+      }
+      if (!isDeleting && currentText === fullText) {
+        setTimeout(() => setIsDeleting(true), 2000);
+      } else if (isDeleting && currentText === "") {
+        setIsDeleting(false);
+        setRoleIndex((prev) => (prev + 1) % roles.length);
+      }
+    }, isDeleting ? 35 : 80);
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, roleIndex]);
+
+  const quickStats = [
+    { icon: Briefcase,     label: "2+ Years",    sub: "Production Exp." },
+    { icon: Star,          label: "9.5 CGPA",    sub: "B.Tech IT" },
+    { icon: GraduationCap, label: "12+ Modules", sub: "HRMS & ERP" },
+  ];
+
+  const socialLinks = [
+    { href: portfolioData.personal.githubUrl,   icon: GithubIcon,   label: "GitHub",    color: "hover:text-[#f1f5f9] hover:border-[#f1f5f930]" },
+    { href: portfolioData.personal.linkedinUrl, icon: LinkedInIcon, label: "LinkedIn",  color: "hover:text-[#38bdf8] hover:border-[#38bdf840]" },
+    { href: portfolioData.personal.whatsappUrl, icon: WhatsAppIcon, label: "WhatsApp", color: "hover:text-[#4ade80] hover:border-[#4ade8040]" },
+  ];
+
+  // Recruiter card data — all UNIQUE, none repeated from left
+  const tabs: { id: RecruiterTab; label: string; icon: React.ReactNode }[] = [
+    { id: "snapshot",  label: "Snapshot",  icon: <TrendingUp className="w-3 h-3" /> },
+    { id: "strengths", label: "Strengths", icon: <Award className="w-3 h-3" /> },
+    { id: "contact",   label: "Contact",   icon: <Phone className="w-3 h-3" /> },
+  ];
+
+  const snapshotItems = [
+    { icon: CheckCircle2, color: "#4ade80", label: "Status",          value: "Open to Work · Immediate Join" },
+    { icon: Briefcase,    color: "#38bdf8", label: "Current Role",    value: "Full-Stack Dev @ Airwix Technologies" },
+    { icon: MapPin,       color: "#c084fc", label: "Location",        value: "Ahmedabad · Remote & On-site" },
+    { icon: Clock,        color: "#f59e0b", label: "Role Type",       value: "Full-Time · Contract · Freelance" },
+    { icon: Rocket,       color: "#4ade80", label: "Domain Focus",    value: "Enterprise HRMS · ERP · SaaS" },
+    { icon: Star,         color: "#38bdf8", label: "Top Skill",       value: "React · Node.js · PostgreSQL" },
+  ];
+
+  const strengthItems = [
+    { icon: Zap,    color: "#4ade80", title: "Live Production",     desc: "2+ yrs shipping to real enterprise environments daily" },
+    { icon: Users,  color: "#38bdf8", title: "Team Collaborator",   desc: "Agile sprints, git workflows, cross-functional delivery" },
+    { icon: Rocket, color: "#c084fc", title: "Fast Learner",        desc: "Adapts to new stacks & domain logic quickly" },
+    { icon: Award,  color: "#f59e0b", title: "Academic Excellence", desc: "9.5 CGPA — top-ranked B.Tech IT graduate" },
+  ];
+
+  const contactItems = [
+    { icon: Phone,         color: "#4ade80", label: "Call / WhatsApp", value: portfolioData.personal.formattedPhone, href: `tel:${portfolioData.personal.phone}` },
+    { icon: Mail,          color: "#38bdf8", label: "Email",           value: portfolioData.personal.email,          href: `mailto:${portfolioData.personal.email}` },
+    { icon: MessageCircle, color: "#22c55e", label: "WhatsApp Chat",   value: "Message me instantly",                href: portfolioData.personal.whatsappUrl },
+  ];
 
   return (
-    <section id="hero" className="relative min-h-[92vh] flex items-center pt-28 pb-16 overflow-hidden">
-      {/* Background Glows & Matrix Grid */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none"></div>
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute top-10 right-10 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <section
+      id="hero"
+      className="relative min-h-[92vh] flex items-center pt-20 pb-12 overflow-hidden bg-[#0c0f17]"
+    >
+      {/* Background Grid */}
+      <div className="hero-bg-grid absolute inset-0 pointer-events-none" />
+      <div className="hero-glow" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Introduction & CTAs */}
-          <div className="lg:col-span-7 flex flex-col items-start space-y-6 text-left">
-            
-            {/* Status Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs sm:text-sm font-medium shadow-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute"></span>
-              <span>Available for Full-Time Roles • 9.5 CGPA</span>
+      <div className="max-w-[1152px] mx-auto px-5 relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+          {/* ── LEFT: Identity & CTA ── */}
+          <div
+            className={`flex flex-col items-start transition-all duration-1000 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            {/* Status Badge */}
+            <div className="flex items-center gap-2 mb-5">
+              <span className="flex items-center gap-1.5 font-mono-code text-[11px] text-[#4ade80] bg-[#4ade8015] border border-[#4ade8035] px-3 py-1.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse" />
+                Available for Hire
+              </span>
+              <span className="font-mono-code text-[10px] text-[#64748b] flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                Ahmedabad, India
+              </span>
             </div>
 
-            {/* Main Headline */}
-            <div className="space-y-3">
-              <h2 className="text-sm sm:text-base font-mono uppercase tracking-widest text-cyan-400 font-semibold flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-cyan-400" />
-                <span>Full Stack Developer & Engineer</span>
-              </h2>
+            {/* Name */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-[#f1f5f9] tracking-tight leading-[1.05]">
+              Nikhil
+              <br />
+              <span className="text-[#4ade80]">Jaiswal</span>
+            </h1>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12]">
-                Architecting <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">Enterprise Web Solutions</span> & Scalable Systems.
-              </h1>
+            {/* Typewriter Role */}
+            <div className="font-mono-code text-sm sm:text-base text-[#94a3b8] font-medium flex items-center gap-1.5 mt-4 min-h-[1.6em]">
+              <span className="text-[#4ade80]">{">"}</span>
+              <span className="text-[#f1f5f9]">{currentText}</span>
+              <span className="cursor-blink" />
             </div>
 
-            {/* Bio Description */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
-              Hi, I&apos;m <span className="text-white font-semibold">{portfolioData.personal.name}</span>. 
-              I engineer robust production web applications, specialized in the{" "}
-              <span className="text-cyan-300 font-medium">MERN stack</span> and{" "}
-              <span className="text-sky-300 font-medium">PostgreSQL</span>. 
-              Proven background building mission-critical HRMS payroll systems, live multi-tenant ERP suites, and high-performance RESTful APIs.
+            {/* One-liner */}
+            <p className="text-[#94a3b8] text-[0.925rem] leading-[1.75] max-w-[44ch] mt-5">
+              Full-Stack Developer with{" "}
+              <span className="text-[#f1f5f9] font-medium">2+ years of production experience</span>{" "}
+              building enterprise HRMS & ERP platforms on React, Node.js, and PostgreSQL.
             </p>
 
-            {/* Quick Contact & Social Links */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <a
-                href={portfolioData.personal.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-mono transition-colors"
-              >
-                <GithubIcon className="w-4 h-4 text-slate-300" />
-                <span>github.com/nikhil2763</span>
-              </a>
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-3 gap-3.5 mt-7 max-w-[480px]">
+              {quickStats.map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div
+                    key={stat.label}
+                    className="flex items-center gap-3 p-2.5 sm:px-3 sm:py-2.5 rounded-lg bg-[#131826]/80 border border-[#ffffff12] hover:border-[#4ade8035] hover:bg-[#1a2234] transition-all duration-200 group"
+                  >
+                    <div className="w-8 h-8 rounded-md bg-[#4ade8015] border border-[#4ade8030] flex items-center justify-center text-[#4ade80] shrink-0 group-hover:scale-105 transition-transform">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[13px] sm:text-[14px] font-bold text-[#f1f5f9] leading-tight truncate">
+                        {stat.label}
+                      </div>
+                      <div className="font-mono-code text-[10px] text-[#64748b] truncate mt-0.5">
+                        {stat.sub}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-              <a
-                href={`mailto:${portfolioData.personal.email}`}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-cyan-400 border border-white/10 text-xs font-mono transition-colors"
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center gap-3 mt-8">
+              <button
+                onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+                className="btn-primary-accent"
               >
-                <Mail className="w-4 h-4 text-cyan-400" />
-                <span>{portfolioData.personal.email}</span>
-              </a>
-
+                <span>Hire Me</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={onOpenResume} className="btn-secondary-edge cursor-pointer">
+                <span>View Resume</span>
+              </button>
               <a
-                href={`tel:${portfolioData.personal.phone}`}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-emerald-400 border border-white/10 text-xs font-mono transition-colors"
+                href="#projects"
+                className="font-mono-code text-[11px] uppercase tracking-widest text-[#64748b] hover:text-[#f1f5f9] transition-colors px-1 py-1.5"
               >
-                <Phone className="w-4 h-4 text-emerald-400" />
-                <span>{portfolioData.personal.formattedPhone}</span>
+                See Work ↓
               </a>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-3 w-full sm:w-auto">
-              <Link
-                href="#projects"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-cyan-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            {/* Social Icons */}
+            <div className="flex items-center gap-3 mt-8">
+              {socialLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={link.label}
+                    className={`p-2.5 rounded-[5px] bg-[#131826] border border-[#ffffff14] text-[#64748b] ${link.color} transition-all duration-200 hover:-translate-y-0.5`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
+              <a
+                href={`mailto:${portfolioData.personal.email}`}
+                aria-label="Email"
+                className="p-2.5 rounded-[5px] bg-[#131826] border border-[#ffffff14] text-[#64748b] hover:text-[#c084fc] hover:border-[#c084fc40] transition-all duration-200 hover:-translate-y-0.5"
               >
-                <span>Explore Featured Projects</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={onOpenResume}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 text-white font-semibold text-sm border border-white/15 hover:border-cyan-400/40 shadow-sm transition-all duration-200 cursor-pointer touch-manipulation"
-              >
-                <FileText className="w-4 h-4 text-cyan-400" />
-                <span>View Full CV & Highlights</span>
-              </button>
-
-              <Link
-                href="#contact"
-                className="hidden sm:inline-flex items-center gap-2 px-5 py-3.5 rounded-xl text-slate-300 hover:text-white text-sm font-medium hover:bg-white/5 transition-colors"
-              >
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Contact Me</span>
-              </Link>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-10 7L2 7" />
+                </svg>
+              </a>
             </div>
           </div>
 
-          {/* Right Column: Avatar + Interactive Code Card */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative space-y-6">
-            
-            {/* Visual Avatar Card with Glowing Frame */}
-            <div className="relative group w-full max-w-sm sm:max-w-md">
-              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 rounded-3xl blur-xl opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse-glow"></div>
-              
-              <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-slate-900/90 shadow-2xl p-3">
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-800">
-                  <Image
-                    src={portfolioData.personal.avatar}
-                    alt="Nikhil Jaiswal - Full Stack Developer"
-                    fill
-                    priority
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Subtle Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-transparent opacity-80"></div>
+          {/* ── RIGHT: Interactive Recruiter Dashboard Card ── */}
+          <div
+            className={`hidden lg:block transition-all duration-1000 delay-300 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            <div className="relative">
+              {/* "Open to Work" floating badge */}
+              <div className="absolute -top-3 -right-3 z-10 bg-[#4ade80] text-[#09090b] font-mono-code text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg shadow-[#4ade8040] animate-bounce-slow">
+                Open to Work
+              </div>
 
-                  {/* Overlaid Info Badge */}
-                  <div className="absolute bottom-4 left-4 right-4 p-3 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white font-bold text-sm">Nikhil Jaiswal</h3>
-                      <p className="text-xs text-cyan-400 font-mono">B.Tech IT • 9.5 CGPA</p>
-                    </div>
-                    <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold border border-emerald-500/30">
-                      Airwix Tech
-                    </span>
+              {/* Main Card */}
+              <div className="border border-[#ffffff14] bg-[#131826] rounded-[12px] shadow-2xl relative overflow-hidden">
+                {/* Glow */}
+                <div className="absolute top-0 right-0 w-56 h-56 bg-[#4ade8008] rounded-full blur-3xl pointer-events-none" />
+
+                {/* Card Chrome Bar */}
+                <div className="flex items-center justify-between px-5 pt-4 pb-0">
+                  <div className="flex items-center gap-1.5 font-mono-code text-[10px] text-[#64748b]">
+                    <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                    <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+                    <span className="w-2 h-2 rounded-full bg-[#4ade80]" />
+                    <span className="ml-2">recruiter.dashboard</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono-code text-[9px] text-[#4ade80] bg-[#4ade8015] border border-[#4ade8030] px-2 py-0.5 rounded">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse" />
+                    LIVE
                   </div>
                 </div>
 
-                {/* Floating Tech Chips around avatar */}
-
-                <div className="absolute -bottom-3 -left-3 hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d1424] border border-indigo-500/40 text-indigo-300 text-xs font-medium shadow-lg shadow-indigo-500/20 animate-float-delayed">
-                  <Database className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>PostgreSQL & APIs</span>
+                {/* Tab Navigation */}
+                <div className="flex gap-1 px-5 pt-4 pb-0">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1.5 font-mono-code text-[10.5px] px-3 py-1.5 rounded-t-[5px] border-t border-l border-r transition-all duration-200 cursor-pointer ${
+                        activeTab === tab.id
+                          ? "bg-[#10141f] border-[#4ade8030] text-[#4ade80]"
+                          : "bg-transparent border-transparent text-[#64748b] hover:text-[#94a3b8]"
+                      }`}
+                    >
+                      {tab.icon}
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
-              </div>
-            </div>
 
-            {/* Interactive Terminal / Code Snippet */}
-            <div className="w-full max-w-sm sm:max-w-md rounded-xl bg-[#0b101c]/90 border border-white/10 shadow-xl overflow-hidden text-xs font-mono">
-              <div className="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-white/5">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
-                  <span className="text-[11px] text-slate-400 ml-2 flex items-center gap-1">
-                    <Terminal className="w-3 h-3 text-cyan-400" />
-                    developer.config.ts
-                  </span>
-                </div>
-                <button
-                  onClick={handleCopyCode}
-                  className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-cyan-400 transition-colors px-2 py-0.5 rounded hover:bg-white/5 cursor-pointer"
-                  title="Copy snippet"
-                >
-                  {copiedCode ? (
-                    <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-400 font-sans">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" />
-                      <span className="font-sans">Copy</span>
-                    </>
+                {/* Tab Content */}
+                <div className="bg-[#10141f] border-t border-[#4ade8020] mx-0 rounded-b-[0px]">
+
+                  {/* ── SNAPSHOT TAB ── */}
+                  {activeTab === "snapshot" && (
+                    <div className="p-5 space-y-2.5">
+                      <div className="font-mono-code text-[10px] text-[#64748b] mb-3 uppercase tracking-widest">
+                        // Quick Info for HR & Recruiters
+                      </div>
+                      {snapshotItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <div
+                            key={item.label}
+                            className="flex items-center gap-3 p-2.5 rounded-[6px] bg-[#131826] border border-[#ffffff08] hover:border-[#ffffff14] transition-colors group"
+                          >
+                            <div
+                              className="w-6 h-6 rounded-[4px] flex items-center justify-center shrink-0"
+                              style={{ background: `${item.color}18`, color: item.color }}
+                            >
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex items-center justify-between flex-1 min-w-0">
+                              <span className="font-mono-code text-[10px] text-[#64748b] w-24 shrink-0">{item.label}</span>
+                              <span className="text-[12.5px] font-semibold text-[#f1f5f9] group-hover:text-white transition-colors text-right truncate" style={{ color: item.color }}>
+                                {item.value}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
-                </button>
-              </div>
 
-              <div className="p-3 text-[11px] sm:text-xs text-slate-300 leading-relaxed overflow-x-auto">
-                <pre>
-                  <code>
-                    <span className="text-purple-400">const</span>{" "}
-                    <span className="text-cyan-300">stack</span> = [
-                    <span className="text-emerald-300">&quot;React.js&quot;</span>,{" "}
-                    <span className="text-emerald-300">&quot;Node.js&quot;</span>,{" "}
-                    <span className="text-emerald-300">&quot;PostgreSQL&quot;</span>,{" "}
-                    <span className="text-emerald-300">&quot;MongoDB&quot;</span>];
-                    {"\n"}
-                    <span className="text-purple-400">const</span>{" "}
-                    <span className="text-cyan-300">focus</span> ={" "}
-                    <span className="text-amber-300">&quot;Enterprise HRMS & ERP Scalability&quot;</span>;
-                    {"\n"}
-                    <span className="text-slate-500">&#47;&#47; 9.5 CGPA • Silver Oak Univ</span>
-                  </code>
-                </pre>
+                  {/* ── STRENGTHS TAB ── */}
+                  {activeTab === "strengths" && (
+                    <div className="p-5 space-y-3">
+                      <div className="font-mono-code text-[10px] text-[#64748b] mb-3 uppercase tracking-widest">
+                        // Why Nikhil?
+                      </div>
+                      {strengthItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <div
+                            key={item.title}
+                            className="flex items-start gap-3 p-3 rounded-[6px] bg-[#131826] border border-[#ffffff08] hover:border-[#ffffff14] transition-colors group"
+                          >
+                            <div
+                              className="w-7 h-7 rounded-[4px] flex items-center justify-center shrink-0 mt-0.5"
+                              style={{ background: `${item.color}18`, border: `1px solid ${item.color}30`, color: item.color }}
+                            >
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <div className="text-[13px] font-bold text-[#f1f5f9] group-hover:text-white transition-colors leading-tight">
+                                {item.title}
+                              </div>
+                              <div className="font-mono-code text-[11px] text-[#64748b] mt-0.5 leading-relaxed">
+                                {item.desc}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* ── CONTACT TAB ── */}
+                  {activeTab === "contact" && (
+                    <div className="p-5 space-y-3">
+                      <div className="font-mono-code text-[10px] text-[#64748b] mb-3 uppercase tracking-widest">
+                        // Reach out directly
+                      </div>
+                      {contactItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <a
+                            key={item.label}
+                            href={item.href}
+                            target={item.href.startsWith("http") ? "_blank" : undefined}
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-[6px] bg-[#131826] border border-[#ffffff08] hover:border-[#4ade8040] hover:bg-[#182032] transition-all duration-200 group block"
+                          >
+                            <div
+                              className="w-8 h-8 rounded-[5px] flex items-center justify-center shrink-0"
+                              style={{ background: `${item.color}18`, border: `1px solid ${item.color}30`, color: item.color }}
+                            >
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-mono-code text-[10px] text-[#64748b]">{item.label}</div>
+                              <div className="text-[12.5px] font-semibold text-[#f1f5f9] group-hover:text-[#4ade80] transition-colors truncate mt-0.5">
+                                {item.value}
+                              </div>
+                            </div>
+                            <ArrowRight className="w-3.5 h-3.5 text-[#64748b] group-hover:text-[#4ade80] transition-colors shrink-0" />
+                          </a>
+                        );
+                      })}
+
+                      {/* LinkedIn quick link */}
+                      <a
+                        href={portfolioData.personal.linkedinUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 p-3 rounded-[6px] bg-[#131826] border border-[#ffffff08] hover:border-[#38bdf840] hover:bg-[#182032] transition-all duration-200 group"
+                      >
+                        <div className="w-8 h-8 rounded-[5px] flex items-center justify-center shrink-0 bg-[#38bdf818] border border-[#38bdf830] text-[#38bdf8]">
+                          <LinkedInIcon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-mono-code text-[10px] text-[#64748b]">LinkedIn</div>
+                          <div className="text-[12.5px] font-semibold text-[#f1f5f9] group-hover:text-[#38bdf8] transition-colors mt-0.5">
+                            View Full Profile
+                          </div>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#64748b] group-hover:text-[#38bdf8] transition-colors shrink-0" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* Card Footer */}
+                <div className="px-5 py-3 bg-[#131826] border-t border-[#ffffff08] flex items-center justify-between font-mono-code text-[10px]">
+                  <span className="text-[#64748b]">Last updated · Oct 2026</span>
+                  <button
+                    onClick={onOpenResume}
+                    className="flex items-center gap-1.5 text-[#4ade80] hover:text-white transition-colors cursor-pointer font-semibold"
+                  >
+                    <span>Full Resume</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
-
           </div>
 
         </div>
-
-        {/* Stats Grid Bar */}
-        <div className="mt-16 pt-8 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {portfolioData.personal.stats.map((stat, idx) => (
-            <div
-              key={idx}
-              className="glass-card rounded-2xl p-5 border border-white/10 flex flex-col items-center sm:items-start text-center sm:text-left group"
-            >
-              <div className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 group-hover:scale-105 transition-transform duration-300">
-                {stat.value}
-                <span className="text-xl sm:text-2xl text-cyan-300 font-bold">{stat.suffix}</span>
-              </div>
-              <div className="text-sm font-semibold text-white mt-1">{stat.label}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{stat.caption}</div>
-            </div>
-          ))}
-        </div>
-
       </div>
     </section>
   );
